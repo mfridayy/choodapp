@@ -1,0 +1,134 @@
+{
+    "1": {
+        "first_name": "osoba",
+        "last_name": "1",
+        "recordings": [
+            "C:/Users/Mateusz/Desktop/inżynierka/akcelerometr/Baza akcelerometr/osoba1.xlsx"
+        ]
+    },
+    "2": {
+        "first_name": "osoba",
+        "last_name": "2",
+        "recordings": [
+            "C:/Users/Mateusz/Desktop/inżynierka/akcelerometr/Baza akcelerometr/osoba2.xlsx"
+        ]
+    },
+    "3": {
+        "first_name": "osoba",
+        "last_name": "3",
+        "recordings": [
+            "C:/Users/Mateusz/Desktop/inżynierka/akcelerometr/Baza akcelerometr/osoba3.xlsx"
+        ]
+    },
+    "4": {
+        "first_name": "osoba",
+        "last_name": "4",
+        "recordings": [
+            "C:/Users/Mateusz/Desktop/inżynierka/akcelerometr/Baza akcelerometr/osoba4.xlsx"
+        ]
+    },
+    "5": {
+        "first_name": "osoba",
+        "last_name": "5",
+        "recordings": [
+            "C:/Users/Mateusz/Desktop/inżynierka/akcelerometr/Baza akcelerometr/osoba5.xlsx"
+        ]
+    },
+    "6": {
+        "first_name": "osoba",
+        "last_name": "6",
+        "recordings": [
+            "C:/Users/Mateusz/Desktop/inżynierka/akcelerometr/Baza akcelerometr/osoba6.xlsx"
+        ]
+    },
+    "7": {
+        "first_name": "osoba",
+        "last_name": "7",
+        "recordings": [
+            "C:/Users/Mateusz/Desktop/inżynierka/akcelerometr/Baza akcelerometr/osoba7.xlsx"
+        ]
+    },
+    "8": {
+        "first_name": "osoba",
+        "last_name": "8",
+        "recordings": [
+            "C:/Users/Mateusz/Desktop/inżynierka/akcelerometr/Baza akcelerometr/osoba8.xlsx"
+        ]
+    },
+    "9": {
+        "first_name": "osoba",
+        "last_name": "9",
+        "recordings": [
+            "C:/Users/Mateusz/Desktop/inżynierka/akcelerometr/Baza akcelerometr/osoba9.xlsx"
+        ]
+    },
+    "37": {
+        "first_name": "Beata",
+        "last_name": "Cieślak-Piątek",
+        "recordings": [
+            "C:/Users/Mateusz/Desktop/inżynierka/testowe osoby/beata_cieslak-piatek.xlsx"
+        ]
+    },
+    "39": {
+        "first_name": "Jakub",
+        "last_name": "Boruc",
+        "recordings": [
+            "recordings\\Jakub_Boruc.xlsx",
+            "recordings\\Jakub_Boruc2.xlsx"
+        ]
+    },
+    "40": {
+        "first_name": "Mateusz",
+        "last_name": "Broczkowski",
+        "recordings": [
+            "recordings\\Mateusz_Broczkowski.xlsx",
+            "recordings\\Mateusz_Broczkowski2.xlsx"
+        ]
+    },
+    "41": {
+        "first_name": "Kacper",
+        "last_name": "Mielczarek",
+        "recordings": [
+            "recordings\\Kacper_Mielczarek.xlsx",
+            "recordings\\Kacper_Mielczarek2.xlsx"
+        ]
+    },
+    "44": {
+        "first_name": "Maciej",
+        "last_name": "Piątek",
+        "recordings": [
+            "C:/Users/Mateusz/Desktop/inżynierka/testowe osoby/maciej_piatek.xlsx"
+        ]
+    },
+    "47": {
+        "first_name": "Jan",
+        "last_name": "Magnuszewski",
+        "recordings": [
+            "C:/Users/Mateusz/Desktop/inżynierka/testowe osoby/Jan_Magnuszewski.xlsx",
+            "C:/Users/Mateusz/Desktop/inżynierka/testowe osoby/Jan_Magnuszewski2.xlsx"
+        ]
+    },
+    "49": {
+        "first_name": "Kacper",
+        "last_name": "Szczawiński",
+        "recordings": [
+            "C:/Users/Mateusz/Desktop/inżynierka/testowe osoby/Kacper_Szczawiński.xlsx",
+            "C:/Users/Mateusz/Desktop/inżynierka/testowe osoby/Kacper_Szczawiński2.xlsx"
+        ]
+    },
+    "50": {
+        "first_name": "Mateusz",
+        "last_name": "Piątek",
+        "recordings": [
+            "C:/Users/Mateusz/Desktop/inżynierka/testowe osoby/mateusz_piatek.xlsx",
+            "C:/Users/Mateusz/Desktop/inżynierka/testowe osoby/mateusz_piatek2.xlsx"
+        ]
+    },
+    "51": {
+        "first_name": "Mikołaj",
+        "last_name": "Piątek",
+        "recordings": [
+            "C:/Users/Mateusz/Desktop/inżynierka/testowe osoby/mikolaj_piatek.xlsx"
+        ]
+    }
+}
