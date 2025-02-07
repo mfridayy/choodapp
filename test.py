@@ -1,1 +1,0 @@
-udało sie problemem był wyłączony moduł bluetooth. Teraz chcemy dodać funkcjonalność gdzie przed nagraniem wyskakuje okienko z pytaniem o

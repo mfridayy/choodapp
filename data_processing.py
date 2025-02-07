@@ -7,11 +7,7 @@ from scipy.signal import butter, filtfilt
 import json
 
 def load_data(file_or_folder, label_start=0):
-    """
-    Wczytuje dane z pojedynczego pliku .xlsx lub całego folderu .xlsx,
-    przypisując PersonID inkrementacyjnie (zaczynając od label_start).
-    (Funkcja pomocnicza, może być używana do testów poza pipeline'm.)
-    """
+
     if os.path.isdir(file_or_folder):
         files = [os.path.join(file_or_folder, f) for f in os.listdir(file_or_folder) if f.endswith('.xlsx')]
     else:
@@ -35,10 +31,6 @@ def load_data(file_or_folder, label_start=0):
 
 
 def load_all_data_from_json(person_map_file):
-    """
-    Wczytuje pliki zdefiniowane w person_id_map.json (klucze to ID osób).
-    Zwraca sklejony DataFrame z kolumną PersonID.
-    """
     with open(person_map_file, 'r', encoding='utf-8') as f:
         person_map = json.load(f)
 
@@ -64,9 +56,6 @@ def load_all_data_from_json(person_map_file):
 
 
 def load_unknown_persons(unknown_folder, unknown_label=9999):
-    """
-    NOWA FUNKCJA: Wczytuje dane .xlsx z folderu unknown_folder i oznacza je ID = unknown_label.
-    """
     if not os.path.isdir(unknown_folder):
         print(f"Folder {unknown_folder} nie istnieje!")
         return pd.DataFrame([])  # zwracamy pusty, żeby nie wysypało kodu
@@ -90,9 +79,6 @@ def load_unknown_persons(unknown_folder, unknown_label=9999):
 
 
 def interpolate_data(data, target_frequency=100):
-    """
-    Interpolacja do częstotliwości 100 Hz (bazowa wersja).
-    """
     print("Interpolacja danych do częstotliwości 100 Hz...")
     data["Time"] = pd.to_datetime(data["HostTimestamp"], unit='ms')
     data["ElapsedSeconds"] = (data["Time"] - data.groupby("PersonID")["Time"].transform("first")).dt.total_seconds()
@@ -115,9 +101,7 @@ def interpolate_data(data, target_frequency=100):
 
 
 def highpass_filter(data, cutoff=0.115, fs=100):
-    """
-    Filtracja górnoprzepustowa (4 rząd Butterworth).
-    """
+
     print("Filtracja górnoprzepustowa...")
     nyquist = 0.5 * fs
     normal_cutoff = cutoff / nyquist
@@ -131,9 +115,6 @@ def highpass_filter(data, cutoff=0.115, fs=100):
 
 
 def trim_data(data, trim_seconds=4):
-    """
-    Przycinanie pierwszych 4 sekund (bazowo).
-    """
     print("Przycinanie pierwszych 4 sekund...")
     trimmed_data = []
     for person_id, group in data.groupby("PersonID"):
@@ -145,10 +126,7 @@ def trim_data(data, trim_seconds=4):
     return trimmed_data
 
 
-def sliding_window_segmentation(data, window_size_seconds=2, overlap=0.7, sampling_rate=100):
-    """
-    Segmentacja metodą okien przesuwnych (bazowa wersja).
-    """
+def sliding_window_segmentation(data, window_size_seconds=2.5, overlap=0.8, sampling_rate=100):
     print("Rozpoczynam segmentację metodą okien przesuwnych...")
     window_size_samples = int(window_size_seconds * sampling_rate)
     step_size_samples = int(window_size_samples * (1 - overlap))
@@ -164,10 +142,6 @@ def sliding_window_segmentation(data, window_size_seconds=2, overlap=0.7, sampli
 
 
 def prepare_data_for_model(segments, target_length=200):
-    """
-    Przygotowanie do modelu (padding/przycinanie do 200 próbek) + normalizacja z-score.
-    (bazowa wersja)
-    """
     X_data = []
     y_labels = []
 

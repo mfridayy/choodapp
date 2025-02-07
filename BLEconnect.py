@@ -1,12 +1,10 @@
-# BLEconnect.py
-
 import asyncio
 from bleak import BleakClient
 from datetime import datetime
 import time
 import pandas as pd
 
-# Adres MAC urządzenia i UUID (przykładowe - dostosuj do swojego)
+# Adres MAC urządzenia i UUID
 DEVICE_ADDRESS = "AE:EC:1A:1F:CB:DE"
 CORRECT_UUID = "00a00000-0001-11e1-ac36-0002a5d5c51b"
 
@@ -62,7 +60,7 @@ async def connect_and_scan(output_file_path):
         try:
             print(f"Subskrybuję dane z UUID {CORRECT_UUID}...")
             await client.start_notify(CORRECT_UUID, handle_accelerometer_data)
-            await asyncio.sleep(120)  # np. 10 sekund nagrywania (dostosuj)
+            await asyncio.sleep(120)
             print(f"Zatrzymuję subskrypcję {CORRECT_UUID}")
             await client.stop_notify(CORRECT_UUID)
         except Exception as e:
@@ -88,3 +86,4 @@ if __name__ == "__main__":
     # Testowe wywołanie
     output_file = "test_ble.xlsx"
     asyncio.run(connect_and_scan(output_file))
+

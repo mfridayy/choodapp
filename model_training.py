@@ -1,5 +1,3 @@
-# model_training.py
-
 import os
 
 # OGRANICZANIE LOGÓW TENSORFLOW:
@@ -71,12 +69,12 @@ def train_model(person_map_file=PERSON_ID_MAP_FILE):
 
     print(f"Łączny rozmiar wczytanych danych: {raw_data.shape}")
 
-    # Pipeline – interpolacja, filtracja, przycinanie, segmentacja, przygotowanie
+    # interpolacja, filtracja, przycinanie, segmentacja, przygotowanie
     print("Rozpoczynam przetwarzanie danych...")
     data_interpolated = interpolate_data(raw_data, target_frequency=100)
     data_filtered = highpass_filter(data_interpolated, cutoff=0.115, fs=100)
     data_trimmed = trim_data(data_filtered, trim_seconds=4)
-    segments = sliding_window_segmentation(data_trimmed, window_size_seconds=2, overlap=0.7, sampling_rate=100)
+    segments = sliding_window_segmentation(data_trimmed, window_size_seconds=2.5, overlap=0.8, sampling_rate=100)
     X, y = prepare_data_for_model(segments, target_length=200)
 
     if X.shape[0] == 0:
@@ -122,26 +120,17 @@ def train_model(person_map_file=PERSON_ID_MAP_FILE):
 #   Funkcje pomocnicze do predykcji
 # -----------------------------
 def compute_entropy(prob):
-    """Prosta funkcja liczenia entropii dla jednego wektora prawdopodobieństw."""
     return -np.sum(prob * np.log(prob + 1e-12))
 
 
 def predict_person(
     file_path_or_data,
-    confidence_threshold=0.9,   # ZŁAGODZONY próg pewności
-    top_diff_threshold=0.05,    # ZŁAGODZONA różnica top1 - top2
-    entropy_threshold=2,      # ZŁAGODZONY próg entropii
+    confidence_threshold=0.9,
+    top_diff_threshold=0.05,
+    entropy_threshold=2,
     debug=False
 ):
-    """
-    Przewiduje osobę/klasę z dodatkowymi mechanizmami:
-    1) Sprawdzenie entropii (jeśli > entropy_threshold => Unknown).
-    2) Różnica (top-1 minus top-2) < top_diff_threshold => Unknown.
-    3) Minimalny próg pewności (best_conf < confidence_threshold => Unknown).
-    4) Klasa 9999 => Unknown.
 
-    Złagodzone parametry progów, aby mniej odrzucać znanych osób.
-    """
 
     from data_processing import load_data
     from data_processing import (
@@ -161,7 +150,7 @@ def predict_person(
     data_interpolated = interpolate_data(raw_data, target_frequency=100)
     data_filtered = highpass_filter(data_interpolated, cutoff=0.115, fs=100)
     data_trimmed = trim_data(data_filtered, trim_seconds=4)
-    segments = sliding_window_segmentation(data_trimmed, window_size_seconds=2, overlap=0.7, sampling_rate=100)
+    segments = sliding_window_segmentation(data_trimmed, window_size_seconds=2.5, overlap=0.8, sampling_rate=100)
     X, _ = prepare_data_for_model(segments, target_length=200)
 
     if len(X) == 0:
