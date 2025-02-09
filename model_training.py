@@ -1,3 +1,4 @@
+#model_training.py
 import os
 
 # OGRANICZANIE LOGÓW TENSORFLOW:

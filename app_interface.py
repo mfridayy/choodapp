@@ -1,3 +1,5 @@
+# app_interface.py
+
 import tkinter as tk
 import tkinter.ttk as ttk
 from tkinter import messagebox, simpledialog
@@ -6,6 +8,7 @@ import threading
 import asyncio
 import json
 import time
+import shutil  # <-- [NOWE] do kopiowania plików
 
 from constants import PERSON_ID_MAP_FILE, MODEL_PATH
 from model_training import train_model, predict_person
@@ -121,7 +124,6 @@ class TestPersonFrame(ttk.Frame):
         if not file_path:
             return
         try:
-            # Wywołujemy predict_person z łagodniejszymi progami oraz debug=True
             prediction = predict_person(
                 file_path,
                 confidence_threshold=0.8,
@@ -146,7 +148,6 @@ class TestPersonFrame(ttk.Frame):
         temp_file = os.path.join(RECORDINGS_FOLDER, "temp_test_data.xlsx")
         try:
             connect_and_scan(temp_file)
-            # Tak samo z łagodniejszymi progami + debug
             prediction = predict_person(
                 temp_file,
                 confidence_threshold=0.8,
@@ -257,6 +258,7 @@ class ManagePersonsFrame(ttk.Frame):
         )
 
         if response:
+            # Tworzymy nowe nagranie z BLE
             dialog = tk.Toplevel(self)
             dialog.title("Dodaj nowe nagranie")
             dialog.geometry("300x200")
@@ -281,9 +283,10 @@ class ManagePersonsFrame(ttk.Frame):
                     return
 
                 filename = f"{first_name}_{last_name}.xlsx".replace(" ", "_")
-                file_path = os.path.join(RECORDINGS_FOLDER, filename)
+                file_path = os.path.join(RECORDINGS_FOLDER, filename)  # docelowy zapis w recordings/
 
                 dialog.destroy()
+                # Rozpoczynamy nagrywanie w osobnym wątku
                 threading.Thread(target=self.run_ble_recording, args=(pid, file_path)).start()
 
                 messagebox.showinfo(
@@ -296,17 +299,26 @@ class ManagePersonsFrame(ttk.Frame):
 
         else:
             from tkinter import filedialog
-            file_path = filedialog.askopenfilename(
-                filetypes=[("Excel files", "*.xlsx")]
-            )
+            file_path = filedialog.askopenfilename(filetypes=[("Excel files", "*.xlsx")])
             if not file_path:
                 return
+
+            # Kopiujemy plik do folderu recordings i zapisujemy ścieżkę względną w JSON
+            base_name = os.path.basename(file_path)
+            dest_path = os.path.join(RECORDINGS_FOLDER, base_name)
+            try:
+                shutil.copy2(file_path, dest_path)
+            except Exception as e:
+                messagebox.showerror("Błąd", f"Nie udało się skopiować pliku:\n{e}")
+                return
+
+            relative_path = os.path.join(RECORDINGS_FOLDER, base_name)
 
             try:
                 with open(PERSON_ID_MAP_FILE, 'r', encoding='utf-8') as f:
                     person_map = json.load(f)
 
-                person_map[pid].setdefault("recordings", []).append(file_path)
+                person_map[pid].setdefault("recordings", []).append(relative_path)
 
                 with open(PERSON_ID_MAP_FILE, 'w', encoding='utf-8') as f:
                     json.dump(person_map, f, ensure_ascii=False, indent=4)
@@ -314,10 +326,10 @@ class ManagePersonsFrame(ttk.Frame):
                 self.load_persons()
                 messagebox.showinfo(
                     "Sukces",
-                    f"Plik '{file_path}' został dodany do nagrań osoby o ID {pid}."
+                    f"Plik '{base_name}' został dodany do nagrań osoby o ID {pid} (zapisany w folderze 'recordings')."
                 )
             except Exception as e:
-                messagebox.showerror("Błąd", f"Nie udało się zapisać pliku: {e}")
+                messagebox.showerror("Błąd", f"Nie udało się zaktualizować pliku JSON: {e}")
 
     def run_ble_recording(self, pid, file_path):
         try:

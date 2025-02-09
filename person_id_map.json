@@ -27,24 +27,24 @@
         "first_name": "Jan",
         "last_name": "Magnuszewski",
         "recordings": [
-            "C:/Users/Mateusz/Desktop/inżynierka/testowe osoby/Jan_Magnuszewski.xlsx",
-            "C:/Users/Mateusz/Desktop/inżynierka/testowe osoby/Jan_Magnuszewski2.xlsx"
+            "recordings/Jan_Magnuszewski.xlsx",
+            "recordings/Jan_Magnuszewski2.xlsx"
         ]
     },
     "5": {
         "first_name": "Kacper",
         "last_name": "Szczawiński",
         "recordings": [
-            "C:/Users/Mateusz/Desktop/inżynierka/testowe osoby/Kacper_Szczawiński.xlsx",
-            "C:/Users/Mateusz/Desktop/inżynierka/testowe osoby/Kacper_Szczawiński2.xlsx"
+            "recordings/Kacper_Szczawiński.xlsx",
+            "recordings/Kacper_Szczawiński2.xlsx"
         ]
     },
     "6": {
         "first_name": "Mateusz",
         "last_name": "Piątek",
         "recordings": [
-            "C:/Users/Mateusz/Desktop/inżynierka/testowe osoby/mateusz_piatek.xlsx",
-            "C:/Users/Mateusz/Desktop/inżynierka/testowe osoby/mateusz_piatek2.xlsx"
+            "recordings/mateusz_piatek.xlsx",
+            "recordings/mateusz_piatek2.xlsx"
         ]
     },
     "7": {
@@ -67,23 +67,23 @@
         "first_name": "Dawid",
         "last_name": "Domański",
         "recordings": [
-            "C:/Users/Mateusz/Desktop/inżynierka/testowe osoby/Dawid_Domański.xlsx",
-            "C:/Users/Mateusz/Desktop/inżynierka/testowe osoby/Dawid_Domański2.xlsx"
+            "recordings/Dawid_Domański.xlsx",
+            "recordings/Dawid_Domański2.xlsx"
         ]
     },
     "10": {
         "first_name": "Piotr",
         "last_name": "Pietrzak",
         "recordings": [
-            "C:/Users/Mateusz/Desktop/inżynierka/testowe osoby/Piotr_Pietrzak.xlsx",
-            "C:/Users/Mateusz/Desktop/inżynierka/testowe osoby/Piotr_Pietrzak2.xlsx"
+            "recordings/Piotr_Pietrzak.xlsx",
+            "recordings/Piotr_Pietrzak2.xlsx"
         ]
     },
     "11": {
         "first_name": "Beata",
         "last_name": "Cieślak-Piątek",
         "recordings": [
-            "C:/Users/Mateusz/Desktop/inżynierka/testowe osoby/beata_cieslak-piatek.xlsx"
+            "recordings/beata_cieslak-piatek.xlsx"
         ]
     }
 }

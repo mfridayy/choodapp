@@ -31,6 +31,7 @@ def load_data(file_or_folder, label_start=0):
 
 
 def load_all_data_from_json(person_map_file):
+    base_dir = os.path.dirname(os.path.abspath(__file__))  # <-- [NOWE]
     with open(person_map_file, 'r', encoding='utf-8') as f:
         person_map = json.load(f)
 
@@ -39,11 +40,14 @@ def load_all_data_from_json(person_map_file):
         pid = int(str_person_id)
         recordings = person_info.get("recordings", [])
         for recording_path in recordings:
-            if not os.path.exists(recording_path):
-                print(f"Plik {recording_path} nie istnieje, pomijam...")
+            # Składamy ścieżkę absolutną na wypadek uruchamiania z innego katalogu
+            recording_abs_path = os.path.join(base_dir, recording_path)
+
+            if not os.path.exists(recording_abs_path):
+                print(f"Plik {recording_abs_path} nie istnieje, pomijam...")
                 continue
-            print(f"Wczytywanie pliku: {recording_path} dla PersonID={pid}")
-            df = pd.read_excel(recording_path, header=None)
+            print(f"Wczytywanie pliku: {recording_abs_path} dla PersonID={pid}")
+            df = pd.read_excel(recording_abs_path, header=None)
             df.columns = ["NodeName", "HostTimestamp", "notificationTime",
                           "timeStamp", "RawData", "X", "Y", "Z"]
             df["PersonID"] = pid
@@ -101,7 +105,6 @@ def interpolate_data(data, target_frequency=100):
 
 
 def highpass_filter(data, cutoff=0.115, fs=100):
-
     print("Filtracja górnoprzepustowa...")
     nyquist = 0.5 * fs
     normal_cutoff = cutoff / nyquist
@@ -166,11 +169,9 @@ def prepare_data_for_model(segments, target_length=200):
     X_data = np.array(X_data)
     y_labels = np.array(y_labels)
 
-    # Normalizacja segment-po-segmencie metodą z-score:
-    # (X - mean) / std dla każdego segmentu osobno
+    # Normalizacja segment-po-segmencie metodą z-score
     X_mean = X_data.mean(axis=1, keepdims=True)
     X_std = X_data.std(axis=1, keepdims=True)
-    # Unikamy dzielenia przez 0
     X_std[X_std < 1e-9] = 1e-9
     X_data = (X_data - X_mean) / X_std
 
