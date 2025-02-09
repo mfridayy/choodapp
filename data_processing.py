@@ -40,7 +40,7 @@ def load_all_data_from_json(person_map_file):
         pid = int(str_person_id)
         recordings = person_info.get("recordings", [])
         for recording_path in recordings:
-            # Składamy ścieżkę absolutną na wypadek uruchamiania z innego katalogu
+
             recording_abs_path = os.path.join(base_dir, recording_path)
 
             if not os.path.exists(recording_abs_path):
@@ -62,7 +62,7 @@ def load_all_data_from_json(person_map_file):
 def load_unknown_persons(unknown_folder, unknown_label=9999):
     if not os.path.isdir(unknown_folder):
         print(f"Folder {unknown_folder} nie istnieje!")
-        return pd.DataFrame([])  # zwracamy pusty, żeby nie wysypało kodu
+        return pd.DataFrame([])
 
     files = [f for f in os.listdir(unknown_folder) if f.endswith(".xlsx")]
     all_data = []
@@ -129,7 +129,7 @@ def trim_data(data, trim_seconds=4):
     return trimmed_data
 
 
-def sliding_window_segmentation(data, window_size_seconds=2.5, overlap=0.8, sampling_rate=100):
+def sliding_window_segmentation(data, window_size_seconds=2, overlap=0.7, sampling_rate=100):
     print("Rozpoczynam segmentację metodą okien przesuwnych...")
     window_size_samples = int(window_size_seconds * sampling_rate)
     step_size_samples = int(window_size_samples * (1 - overlap))

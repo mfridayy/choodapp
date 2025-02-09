@@ -8,7 +8,7 @@ import threading
 import asyncio
 import json
 import time
-import shutil  # <-- [NOWE] do kopiowania plików
+import shutil
 
 from constants import PERSON_ID_MAP_FILE, MODEL_PATH
 from model_training import train_model, predict_person
@@ -48,12 +48,15 @@ class Application(tk.Tk):
         quit_btn = ttk.Button(self.navbar, text="Zamknij", command=self.quit)
         quit_btn.pack(side="right", padx=5, pady=5)
 
+        # Główny kontener na poszczególne "strony" (ramki)
         self.container = ttk.Frame(self)
         self.container.pack(side="top", fill="both", expand=True)
 
+        # Etykieta statusu na dole
         self.status_label = ttk.Label(self, text="Status: Oczekiwanie na akcję", anchor="w")
         self.status_label.pack(side="bottom", fill="x", pady=5)
 
+        # Inicjalizacja dostępnych "stron"
         self.home_frame = HomeFrame(self.container, self)
         self.test_person_frame = TestPersonFrame(self.container, self)
         self.manage_persons_frame = ManagePersonsFrame(self.container, self)
@@ -61,6 +64,7 @@ class Application(tk.Tk):
         for frame in (self.home_frame, self.test_person_frame, self.manage_persons_frame):
             frame.grid(row=0, column=0, sticky="nsew")
 
+        # Domyślnie pokaż ekran główny
         self.show_frame(self.home_frame)
 
     def show_frame(self, frame):
@@ -109,14 +113,22 @@ class TestPersonFrame(ttk.Frame):
 
         ttk.Label(self, text="Badaj Osobę", font=("Arial", 14, "bold")).pack(pady=15)
 
+        # Przycisk wczytania pliku z dysku
         btn_load = ttk.Button(self, text="Załaduj Plik", command=self.load_test_file)
         btn_load.pack(pady=5)
 
-        btn_live = ttk.Button(self, text="Badaj Teraz (na żywo)", command=self.start_testing)
+        # Przycisk badania na żywo (BLE)
+        btn_live = ttk.Button(self, text="Rozpocznij badanie (BLE)", command=self.start_live_test)
         btn_live.pack(pady=5)
 
-        self.test_status_label = ttk.Label(self, text="", wraplength=600)
-        self.test_status_label.pack(pady=20)
+        # Etykieta na wynik
+        self.result_label = ttk.Label(
+            self,
+            text="",
+            font=("Arial", 16, "bold"),
+            anchor="center"
+        )
+        self.result_label.pack(pady=20)
 
     def load_test_file(self):
         from tkinter import filedialog
@@ -131,35 +143,65 @@ class TestPersonFrame(ttk.Frame):
                 entropy_threshold=2.2,
                 debug=True
             )
-            self.test_status_label.config(text=f"Wynik: {prediction}")
-            self.controller.update_status(f"Wynik: {prediction}")
+            self.show_prediction(prediction)
         except Exception as e:
-            self.test_status_label.config(text=f"Błąd: {str(e)}")
-            self.controller.update_status(f"Błąd: {str(e)}")
+            self.show_prediction(f"Błąd: {str(e)}")
 
-    def start_testing(self):
-        self.test_status_label.config(text="Trwa nagrywanie danych...")
-        threading.Thread(target=self.record_and_test).start()
+    def start_live_test(self):
 
-    def record_and_test(self):
-        from BLEconnect import connect_and_scan
-        import os
+        duration = simpledialog.askinteger(
+            "Czas badania",
+            "Podaj czas nagrywania w sekundach:",
+            initialvalue=30,
+            minvalue=1,
+            maxvalue=600
+        )
+        if duration is None:
+            return
 
-        temp_file = os.path.join(RECORDINGS_FOLDER, "temp_test_data.xlsx")
+        self.controller.update_status(f"Nagrywanie (BLE) przez {duration} s...")
+
+        self.temp_file = os.path.join(RECORDINGS_FOLDER, "live_test_data.xlsx")
+        if os.path.exists(self.temp_file):
+            os.remove(self.temp_file)
+
+        # Uruchom w osobnym wątku, by nie blokować GUI
+        t = threading.Thread(target=self._record_and_predict, args=(duration,))
+        t.start()
+
+        # Wstępna informacja w labelce
+        self.show_prediction(f"Trwa nagrywanie przez {duration} sekund...")
+
+    def _record_and_predict(self, duration):
+        from BLEconnect import connect_and_scan_sync
         try:
-            connect_and_scan(temp_file)
-            prediction = predict_person(
-                temp_file,
+            connect_and_scan_sync(self.temp_file, scan_duration=duration)
+
+            if not os.path.exists(self.temp_file):
+                self.show_prediction("Błąd: nie utworzono pliku z danymi!")
+                return
+
+            pred = predict_person(
+                self.temp_file,
                 confidence_threshold=0.8,
                 top_diff_threshold=0.05,
                 entropy_threshold=2.2,
                 debug=True
             )
-            self.test_status_label.config(text=f"Wynik: {prediction}")
-            self.controller.update_status(f"Wynik: {prediction}")
+            self.show_prediction(pred)
+
         except Exception as e:
-            self.test_status_label.config(text=f"Błąd: {str(e)}")
-            self.controller.update_status(f"Błąd: {str(e)}")
+            self.show_prediction(f"Błąd: {str(e)}")
+
+    def show_prediction(self, text):
+
+        if "Unknown" in text:
+            color = "red"
+        else:
+            color = "green"
+
+        self.result_label.config(text=f"Wynik: {text}", foreground=color)
+        self.controller.update_status(f"Wynik: {text}")
 
 
 class ManagePersonsFrame(ttk.Frame):
@@ -283,12 +325,10 @@ class ManagePersonsFrame(ttk.Frame):
                     return
 
                 filename = f"{first_name}_{last_name}.xlsx".replace(" ", "_")
-                file_path = os.path.join(RECORDINGS_FOLDER, filename)  # docelowy zapis w recordings/
+                file_path = os.path.join(RECORDINGS_FOLDER, filename)
 
                 dialog.destroy()
-                # Rozpoczynamy nagrywanie w osobnym wątku
                 threading.Thread(target=self.run_ble_recording, args=(pid, file_path)).start()
-
                 messagebox.showinfo(
                     "Nagrywanie",
                     f"Rozpoczynam nagrywanie do pliku: {file_path}\n\nCzekaj na zakończenie..."
@@ -313,7 +353,6 @@ class ManagePersonsFrame(ttk.Frame):
                 return
 
             relative_path = os.path.join(RECORDINGS_FOLDER, base_name)
-
             try:
                 with open(PERSON_ID_MAP_FILE, 'r', encoding='utf-8') as f:
                     person_map = json.load(f)
@@ -332,11 +371,10 @@ class ManagePersonsFrame(ttk.Frame):
                 messagebox.showerror("Błąd", f"Nie udało się zaktualizować pliku JSON: {e}")
 
     def run_ble_recording(self, pid, file_path):
+        from BLEconnect import connect_and_scan_sync
+        scan_duration = 120
         try:
-            from BLEconnect import connect_and_scan
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-            loop.run_until_complete(connect_and_scan(file_path))
+            connect_and_scan_sync(file_path, scan_duration=scan_duration)
 
             with open(PERSON_ID_MAP_FILE, 'r', encoding='utf-8') as f:
                 person_map = json.load(f)
@@ -378,7 +416,7 @@ class ManagePersonsFrame(ttk.Frame):
         self.recordings_listbox.delete(0, tk.END)
         index = selection[0]
         person_entry = self.person_listbox.get(index)
-        pid = person_entry.split(" ")[1]  # np. "ID: 1 - John Doe" -> "1"
+        pid = person_entry.split(" ")[1]
         self.selected_person_id = pid
 
         try:

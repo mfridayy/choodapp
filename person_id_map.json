@@ -83,7 +83,24 @@
         "first_name": "Beata",
         "last_name": "Cieślak-Piątek",
         "recordings": [
-            "recordings/beata_cieslak-piatek.xlsx"
+            "recordings/beata_cieslak-piatek.xlsx",
+            "recordings\\beata_cieslak-piatek2.xlsx"
+        ]
+    },
+    "12": {
+        "first_name": "Maciej",
+        "last_name": "Piątek",
+        "recordings": [
+            "recordings\\maciej_piatek.xlsx",
+            "recordings\\maciej_piatek2.xlsx"
+        ]
+    },
+    "13": {
+        "first_name": "Mikołaj",
+        "last_name": "Piątek",
+        "recordings": [
+            "recordings\\mikolaj_piatek.xlsx",
+            "recordings\\mikolaj_piatek_2.xlsx"
         ]
     }
 }

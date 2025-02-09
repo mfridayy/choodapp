@@ -2,12 +2,15 @@ import os
 import json
 
 from sklearn.metrics import confusion_matrix, classification_report
-from constants import UNKNOWN_CLASS_ID, PERSON_ID_MAP_FILE
-from model_training import predict_person  # Twoja funkcja predykcyjna
 
-# Foldery z plikami testowymi
-TEST_KNOWN_FOLDER = r"C:/Users/Mateusz/PycharmProjects/inżynierka/test_known_persons"
-TEST_UNKNOWN_FOLDER = r"C:/Users/Mateusz/PycharmProjects/inżynierka/test_unknown_persons"
+from constants import UNKNOWN_CLASS_ID, PERSON_ID_MAP_FILE
+from model_training import predict_person
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+
+TEST_KNOWN_FOLDER = os.path.join(BASE_DIR, "test_known_persons")
+TEST_UNKNOWN_FOLDER = os.path.join(BASE_DIR, "test_unknown_persons")
 
 
 def evaluate_model():
@@ -20,11 +23,14 @@ def evaluate_model():
     y_pred = []
 
     # --- 1. Testy osób ZNANYCH (ID w nazwie pliku: 1.xlsx, 2.xlsx, itp.) ---
+    if not os.path.isdir(TEST_KNOWN_FOLDER):
+        print(f"Folder testowy (known) nie istnieje: {TEST_KNOWN_FOLDER}")
+        return
+
     known_files = [f for f in os.listdir(TEST_KNOWN_FOLDER) if f.lower().endswith(".xlsx")]
 
     for fname in known_files:
         file_path = os.path.join(TEST_KNOWN_FOLDER, fname)
-        # np. fname = "1.xlsx" → true_id = 1
         true_id = parse_file_name_for_id(fname)
         if true_id is None:
             print(f"UWAGA: Nie udało się wyodrębnić ID z nazwy pliku: {fname}. Pomijam ten plik.")
@@ -33,7 +39,7 @@ def evaluate_model():
         # Wywołanie predykcji
         prediction_str = predict_person(
             file_path,
-            confidence_threshold=0.8,   # dopasuj progi wg uznania
+            confidence_threshold=0.8,
             top_diff_threshold=0.05,
             entropy_threshold=2.2,
             debug=False
@@ -44,11 +50,15 @@ def evaluate_model():
         y_pred.append(pred_id)
 
     # --- 2. Testy osób NIEZNANYCH (ID=9999) ---
+    if not os.path.isdir(TEST_UNKNOWN_FOLDER):
+        print(f"Folder testowy (unknown) nie istnieje: {TEST_UNKNOWN_FOLDER}")
+        return
+
     unknown_files = [f for f in os.listdir(TEST_UNKNOWN_FOLDER) if f.lower().endswith(".xlsx")]
 
     for fname in unknown_files:
         file_path = os.path.join(TEST_UNKNOWN_FOLDER, fname)
-        true_id = UNKNOWN_CLASS_ID  # wszystko w tym folderze to klasa "unknown"
+        true_id = UNKNOWN_CLASS_ID
 
         prediction_str = predict_person(
             file_path,
@@ -101,7 +111,6 @@ def parse_prediction_to_id(prediction_str):
     if "Unknown" in prediction_str:
         return UNKNOWN_CLASS_ID
 
-    # Inaczej: "Przewidywana osoba: Imię Nazwisko"
     name_part = prediction_str.replace("Przewidywana osoba:", "").strip()
 
     # Wczytujemy person_id_map.json, by znaleźć ID dla danego imienia i nazwiska

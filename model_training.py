@@ -52,10 +52,6 @@ def create_cnn_lstm_model(input_shape, num_classes):
 
 
 def train_model(person_map_file=PERSON_ID_MAP_FILE):
-    """
-    Trenuje model na danych z pliku JSON (osoby znane) oraz
-    dodatkowo z folderu 'unknown_persons' (osoby nieznane = klasa 9999).
-    """
 
     print("Wczytywanie danych osób znanych...")
     raw_data_known = load_all_data_from_json(person_map_file)
@@ -75,14 +71,14 @@ def train_model(person_map_file=PERSON_ID_MAP_FILE):
     data_interpolated = interpolate_data(raw_data, target_frequency=100)
     data_filtered = highpass_filter(data_interpolated, cutoff=0.115, fs=100)
     data_trimmed = trim_data(data_filtered, trim_seconds=4)
-    segments = sliding_window_segmentation(data_trimmed, window_size_seconds=2.5, overlap=0.8, sampling_rate=100)
+    segments = sliding_window_segmentation(data_trimmed, window_size_seconds=2, overlap=0.7, sampling_rate=100)
     X, y = prepare_data_for_model(segments, target_length=200)
 
     if X.shape[0] == 0:
         raise ValueError("Brak segmentów po przetwarzaniu danych. Nie można trenować.")
 
     unique_labels = np.unique(y)
-    sorted_labels = sorted(unique_labels.tolist())  # np. [0, 1, 2, 9999] itp.
+    sorted_labels = sorted(unique_labels.tolist())
     label_to_index = {original: idx for idx, original in enumerate(sorted_labels)}
     y_mapped = np.array([label_to_index[val] for val in y], dtype=np.int32)
 
@@ -151,7 +147,7 @@ def predict_person(
     data_interpolated = interpolate_data(raw_data, target_frequency=100)
     data_filtered = highpass_filter(data_interpolated, cutoff=0.115, fs=100)
     data_trimmed = trim_data(data_filtered, trim_seconds=4)
-    segments = sliding_window_segmentation(data_trimmed, window_size_seconds=2.5, overlap=0.8, sampling_rate=100)
+    segments = sliding_window_segmentation(data_trimmed, window_size_seconds=2, overlap=0.7, sampling_rate=100)
     X, _ = prepare_data_for_model(segments, target_length=200)
 
     if len(X) == 0:
