@@ -71,7 +71,7 @@ def train_model(person_map_file=PERSON_ID_MAP_FILE):
     data_interpolated = interpolate_data(raw_data, target_frequency=100)
     data_filtered = highpass_filter(data_interpolated, cutoff=0.115, fs=100)
     data_trimmed = trim_data(data_filtered, trim_seconds=4)
-    segments = sliding_window_segmentation(data_trimmed, window_size_seconds=2, overlap=0.7, sampling_rate=100)
+    segments = sliding_window_segmentation(data_trimmed, window_size_seconds=3, overlap=0.7, sampling_rate=100)
     X, y = prepare_data_for_model(segments, target_length=200)
 
     if X.shape[0] == 0:
@@ -122,9 +122,9 @@ def compute_entropy(prob):
 
 def predict_person(
     file_path_or_data,
-    confidence_threshold=0.9,
-    top_diff_threshold=0.05,
-    entropy_threshold=2,
+    confidence_threshold=0.96,
+    top_diff_threshold=0.001,
+    entropy_threshold=1,
     debug=False
 ):
 
@@ -147,7 +147,7 @@ def predict_person(
     data_interpolated = interpolate_data(raw_data, target_frequency=100)
     data_filtered = highpass_filter(data_interpolated, cutoff=0.115, fs=100)
     data_trimmed = trim_data(data_filtered, trim_seconds=4)
-    segments = sliding_window_segmentation(data_trimmed, window_size_seconds=2, overlap=0.7, sampling_rate=100)
+    segments = sliding_window_segmentation(data_trimmed, window_size_seconds=3, overlap=0.7, sampling_rate=100)
     X, _ = prepare_data_for_model(segments, target_length=200)
 
     if len(X) == 0:

@@ -39,9 +39,9 @@ def evaluate_model():
         # Wywołanie predykcji
         prediction_str = predict_person(
             file_path,
-            confidence_threshold=0.8,
-            top_diff_threshold=0.05,
-            entropy_threshold=2.2,
+            confidence_threshold=0.96,
+            top_diff_threshold=0.001,
+            entropy_threshold=1,
             debug=False
         )
         pred_id = parse_prediction_to_id(prediction_str)
