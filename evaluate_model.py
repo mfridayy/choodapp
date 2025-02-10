@@ -16,7 +16,7 @@ TEST_UNKNOWN_FOLDER = os.path.join(BASE_DIR, "test_unknown_persons")
 def evaluate_model():
     """
     Główny skrypt testujący, zakładający:
-      - test_known_persons: pliki .xlsx o nazwie = ID + ".xlsx" (np. "1.xlsx", "2.xlsx")
+      - test_known_persons: pliki .xlsx o nazwie = ID + ".xlsx"
       - test_unknown_persons: pliki .xlsx o dowolnej nazwie, wszystkie traktowane jako ID=9999
     """
     y_true = []
@@ -40,8 +40,8 @@ def evaluate_model():
         prediction_str = predict_person(
             file_path,
             confidence_threshold=0.96,
-            top_diff_threshold=0.001,
-            entropy_threshold=1,
+            top_diff_threshold=0.005,
+            entropy_threshold=1.1,
             debug=False
         )
         pred_id = parse_prediction_to_id(prediction_str)
@@ -106,7 +106,7 @@ def parse_prediction_to_id(prediction_str):
     """
     Zamienia napis zwracany przez `predict_person`
     (np. "Przewidywana osoba: Jan Kowalski" lub "Unknown")
-    na ID liczbowe (np. 0,1,...,9999).
+    na ID liczbowe.
     """
     if "Unknown" in prediction_str:
         return UNKNOWN_CLASS_ID
@@ -127,11 +127,6 @@ def parse_prediction_to_id(prediction_str):
 
 
 def compute_FAR_FRR(y_true, y_pred):
-    """
-    Oblicza metryki open set:
-      - FAR = false acceptance rate (ile obcych zaklasyfikowano jako known)
-      - FRR = false rejection rate (ile znanych zaklasyfikowano jako unknown)
-    """
     total_unknown = 0
     false_accepted = 0
 

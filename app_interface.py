@@ -165,7 +165,7 @@ class TestPersonFrame(ttk.Frame):
         if os.path.exists(self.temp_file):
             os.remove(self.temp_file)
 
-        # Uruchom w osobnym wątku, by nie blokować GUI
+        # Uruchomienie w osobnym wątku, by nie blokować GUI
         t = threading.Thread(target=self._record_and_predict, args=(duration,))
         t.start()
 

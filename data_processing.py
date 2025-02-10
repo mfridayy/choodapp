@@ -129,7 +129,7 @@ def trim_data(data, trim_seconds=4):
     return trimmed_data
 
 
-def sliding_window_segmentation(data, window_size_seconds=3, overlap=0.7, sampling_rate=100):
+def sliding_window_segmentation(data, window_size_seconds=2, overlap=0.7, sampling_rate=100):
     print("Rozpoczynam segmentację metodą okien przesuwnych...")
     window_size_samples = int(window_size_seconds * sampling_rate)
     step_size_samples = int(window_size_samples * (1 - overlap))
