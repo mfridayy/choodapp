@@ -124,7 +124,7 @@ def predict_person(
     file_path_or_data,
     confidence_threshold=0.96,
     top_diff_threshold=0.005,
-    entropy_threshold=1.1,
+    entropy_threshold=2,
     debug=False
 ):
 

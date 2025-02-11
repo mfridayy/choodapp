@@ -138,9 +138,9 @@ class TestPersonFrame(ttk.Frame):
         try:
             prediction = predict_person(
                 file_path,
-                confidence_threshold=0.8,
-                top_diff_threshold=0.05,
-                entropy_threshold=2.2,
+                confidence_threshold=0.92,
+                top_diff_threshold=0.005,
+                entropy_threshold=2,
                 debug=True
             )
             self.show_prediction(prediction)
@@ -183,9 +183,9 @@ class TestPersonFrame(ttk.Frame):
 
             pred = predict_person(
                 self.temp_file,
-                confidence_threshold=0.8,
-                top_diff_threshold=0.05,
-                entropy_threshold=2.2,
+                confidence_threshold=0.92,
+                top_diff_threshold=0.005,
+                entropy_threshold=2,
                 debug=True
             )
             self.show_prediction(pred)

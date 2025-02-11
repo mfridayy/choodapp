@@ -8,21 +8,15 @@ from model_training import predict_person
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-
 TEST_KNOWN_FOLDER = os.path.join(BASE_DIR, "test_known_persons")
 TEST_UNKNOWN_FOLDER = os.path.join(BASE_DIR, "test_unknown_persons")
 
 
 def evaluate_model():
-    """
-    Główny skrypt testujący, zakładający:
-      - test_known_persons: pliki .xlsx o nazwie = ID + ".xlsx"
-      - test_unknown_persons: pliki .xlsx o dowolnej nazwie, wszystkie traktowane jako ID=9999
-    """
     y_true = []
     y_pred = []
 
-    # --- 1. Testy osób ZNANYCH (ID w nazwie pliku: 1.xlsx, 2.xlsx, itp.) ---
+    # --- 1. Testy osób ZNANYCH ---
     if not os.path.isdir(TEST_KNOWN_FOLDER):
         print(f"Folder testowy (known) nie istnieje: {TEST_KNOWN_FOLDER}")
         return
@@ -39,9 +33,9 @@ def evaluate_model():
         # Wywołanie predykcji
         prediction_str = predict_person(
             file_path,
-            confidence_threshold=0.96,
-            top_diff_threshold=0.005,
-            entropy_threshold=1.1,
+            confidence_threshold=0.95,
+            top_diff_threshold=0.02,
+            entropy_threshold=1.2,
             debug=False
         )
         pred_id = parse_prediction_to_id(prediction_str)
@@ -62,9 +56,9 @@ def evaluate_model():
 
         prediction_str = predict_person(
             file_path,
-            confidence_threshold=0.8,
-            top_diff_threshold=0.05,
-            entropy_threshold=2.2,
+            confidence_threshold=0.95,
+            top_diff_threshold=0.02,
+            entropy_threshold=1.2,
             debug=False
         )
         pred_id = parse_prediction_to_id(prediction_str)
@@ -72,7 +66,7 @@ def evaluate_model():
         y_true.append(true_id)
         y_pred.append(pred_id)
 
-    # --- 3. Analiza wyników ---
+    # --- 3. Analiza wyników standardowych ---
     all_labels = sorted(set(y_true + y_pred))
     print(f"\nEtykiety występujące w teście: {all_labels}")
 
@@ -88,6 +82,9 @@ def evaluate_model():
     # Metryki open set: FAR i FRR
     compute_FAR_FRR(y_true, y_pred)
 
+    # --- 4. Analiza błędów, osoba znana, ale źle rozpoznana” ---
+    compute_intra_known_errors(y_true, y_pred)
+
 
 def parse_file_name_for_id(fname):
     """
@@ -95,7 +92,7 @@ def parse_file_name_for_id(fname):
     Wtedy ID=1.
     Jeśli nazwa nie jest liczbą przed .xlsx, zwraca None.
     """
-    base, ext = os.path.splitext(fname)  # np. "1", ".xlsx"
+    base, ext = os.path.splitext(fname)
     try:
         return int(base)
     except ValueError:
@@ -127,6 +124,11 @@ def parse_prediction_to_id(prediction_str):
 
 
 def compute_FAR_FRR(y_true, y_pred):
+    """
+    Oblicza metryki open set:
+      - FAR = false acceptance rate (ile obcych zaklasyfikowano jako known)
+      - FRR = false rejection rate (ile znanych zaklasyfikowano jako unknown)
+    """
     total_unknown = 0
     false_accepted = 0
 
@@ -149,6 +151,37 @@ def compute_FAR_FRR(y_true, y_pred):
     print("\n=== FAR/FRR (Open Set) ===")
     print(f"  Liczba próbek unknown: {total_unknown}, false_accepted: {false_accepted}, FAR = {FAR:.4f}")
     print(f"  Liczba próbek known:   {total_known}, false_rejected: {false_rejected}, FRR = {FRR:.4f}")
+
+
+def compute_intra_known_errors(y_true, y_pred):
+    """
+    Zlicza błędy rozpoznania między osobami, które obie są w bazie, ale
+    model wskazał niewłaściwe ID (inną osobę z bazy).
+
+    tzn.:
+      - t != UNKNOWN_CLASS_ID
+      - p != UNKNOWN_CLASS_ID
+      - t != p
+    """
+    total_intra_known = 0
+    misidentified_intra_known = 0
+
+    for t, p in zip(y_true, y_pred):
+        # Jeśli obie wartości != UNKNOWN_CLASS_ID
+        if t != UNKNOWN_CLASS_ID and p != UNKNOWN_CLASS_ID:
+            total_intra_known += 1
+            if t != p:
+                misidentified_intra_known += 1
+
+    if total_intra_known > 0:
+        misident_rate = misidentified_intra_known / total_intra_known
+    else:
+        misident_rate = 0.0
+
+    print("\n=== Błędy wewnątrz zbioru osób znanych (misidentification among known) ===")
+    print(f"  Łączna liczba przypadków, gdy obie strony są known: {total_intra_known}")
+    print(f"  Błędnie rozpoznane wśród known: {misidentified_intra_known}")
+    print(f"  Wskaźnik błędnej identyfikacji (intra-known) = {misident_rate:.4f}")
 
 
 if __name__ == "__main__":
